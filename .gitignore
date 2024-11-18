@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# But include all .cs files
+!*.cs
+!*.csv
+
+# Include .gitignore itself
+!.gitignore
