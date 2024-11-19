@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CubeRotation : MonoBehaviour
 {
-    public float rotationSpeed = 1f; // Speed of rotation
+    public float rotationSpeed = 10f; // Speed of rotation
     private int currentIndex = 0; // Current target rotation index
     private Quaternion targetQuaternion; // Current target rotation in quaternion
     private Vector3[] targetRotations; // Array to store rotations from the CSV file
@@ -13,19 +13,17 @@ public class CubeRotation : MonoBehaviour
     void Start()
     {
         // Initialize CSVDataProcessor and load data
-        CSVDataProcessor CSVDATA = new CSVDataProcessor("data.csv");
+        var CSVDATA = new CSVDataProcessor("data.csv");
         CSVDATA.LoadData();
 
         // Convert loaded data to targetRotations array (assuming CSVDATA.Index is int[])
         int[] rotationData = CSVDATA.Index;
+        Debug.Log(rotationData.Length);
+        Debug.Log("Succesfylly Loading Data");
 
         // Convert int[] to Vector3[] (assuming rotations are stored as degrees in 3D space)
         targetRotations = new Vector3[rotationData.Length];
-        Debug.Log("Succesfylly");
-        foreach (Vector3 rotation in targetRotations)
-        {
-            Debug.Log(rotation);
-        }
+
         for (int i = 0; i < rotationData.Length; i++)
         {
             targetRotations[i] = new Vector3(0, rotationData[i], 0); // Example: Y-axis rotation
@@ -36,6 +34,12 @@ public class CubeRotation : MonoBehaviour
             // Set the first target rotation
             targetQuaternion = Quaternion.Euler(targetRotations[currentIndex]);
         }
+        foreach (Vector3 rotation in targetRotations)
+        {
+            Debug.Log(rotation);
+        }
+        Debug.Log("Succesfylly Vector");
+
     }
 
     void Update()
@@ -45,7 +49,7 @@ public class CubeRotation : MonoBehaviour
         if (targetRotations == null || targetRotations.Length == 0)
             Console.WriteLine("No rotation selected");
 
-        // Debug.Log("Succesfylly Update check");
+        Debug.Log("Succesfylly Update check");
 
         // Smoothly rotate towards the target rotation
         transform.rotation = Quaternion.Slerp(transform.rotation, targetQuaternion, rotationSpeed * Time.deltaTime);

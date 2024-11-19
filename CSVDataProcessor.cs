@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Globalization;
 using CsvHelper;
+using UnityEngine;
 
 public class CSVDataProcessor
 {
@@ -24,11 +25,8 @@ public class CSVDataProcessor
     /// <param name="relativeFilePath">Relative path to the CSV file.</param>
     public CSVDataProcessor(string relativeFilePath)
     {
-        // Set the file path based on the given relative path and navigate up three levels from the current working directory.
-        filePath = Path.Combine(
-            Directory.GetParent(Directory.GetCurrentDirectory())?.Parent.Parent?.FullName ?? string.Empty,
-            relativeFilePath
-        );
+        // Set the file path based on the given relative path.
+        filePath = Path.Combine("Assets", relativeFilePath);
 
         // Calculate the number of rows in the CSV file and initialize arrays to hold data for each finger.
         rowCount = GetRowCount();
@@ -61,8 +59,8 @@ public class CSVDataProcessor
         catch (FileNotFoundException ex)
         {
             // Handle the case where the file is not found
-            Console.WriteLine($"Error: The file {filePath} was not found.");
-            Console.WriteLine($"{ex.Message}");
+            Debug.Log($"Error: The file {filePath} was not found.");
+            Debug.Log($"{ex.Message}");
         }
 
         return count;
@@ -100,18 +98,18 @@ public class CSVDataProcessor
         catch (FileNotFoundException ex)
         {
             // Handle the case where the file is not found
-            Console.WriteLine($"Error: The file {filePath} was not found.");
-            Console.WriteLine($"{ex.Message}");
+            Debug.Log($"Error: The file {filePath} was not found.");
+            Debug.Log($"{ex.Message}");
         }
         catch (CsvHelperException ex)
         {
             // Handle errors related to CSV parsing (e.g., format issues)
-            Console.WriteLine("CSV Parsing Error: " + ex.Message);
+            Debug.Log("CSV Parsing Error: " + ex.Message);
         }
         catch (Exception ex)
         {
             // Handle any other unexpected errors
-            Console.WriteLine("An error occurred: " + ex.Message);
+            Debug.Log("An error occurred: " + ex.Message);
         }
     }
 }
