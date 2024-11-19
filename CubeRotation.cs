@@ -44,6 +44,8 @@ public class CubeRotation : MonoBehaviour
 
     void Update()
     {
+        //TODO Important - remove all unnecessary Logs and Debugs.
+        //TODO Fully add comments to section
         // Debug.Log("Succesfylly Update");
 
         if (targetRotations == null || targetRotations.Length == 0)
