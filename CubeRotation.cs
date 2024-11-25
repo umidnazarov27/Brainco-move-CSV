@@ -1,15 +1,14 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-// A script to control the rotation of a Cube object based on data from a CSV file.
 public class CubeRotation : MonoBehaviour
 {
-    public float rotationSpeed = 10f; // Speed at which the cube rotates (in degrees per second).
-    private int currentIndex = 0; // Index to track the current target rotation in the array.
-    private Quaternion targetQuaternion; // Target rotation, represented as a quaternion.
+    public float rotationSpeed = 15f; // Speed of the cube's smooth rotation.
+    private int currentIndex = 0; // Index to track the current target rotation.
     private Vector3[] targetRotations; // Array to store target rotations read from the CSV file.
+
+    private Quaternion targetQuaternion; // Target rotation for smooth interpolation.
 
     void Start()
     {
@@ -23,8 +22,7 @@ public class CubeRotation : MonoBehaviour
         int[] rotationData = CSVDATA.Index;
 
         // Log the length of the data to verify successful loading.
-        Debug.Log(rotationData.Length);
-        Debug.Log("Successfully Loaded Data");
+        Debug.Log($"Loaded {rotationData.Length} rotation values from the CSV file.");
 
         // Convert the integer array to a Vector3 array for storing 3D rotation values.
         targetRotations = new Vector3[rotationData.Length];
@@ -35,43 +33,46 @@ public class CubeRotation : MonoBehaviour
             targetRotations[i] = new Vector3(0, rotationData[i], 0);
         }
 
-        // If there are rotations available, set the first target rotation.
+        // If rotations exist, set the first target rotation and start the coroutine.
         if (targetRotations.Length > 0)
         {
-            targetQuaternion = Quaternion.Euler(targetRotations[currentIndex]); // Convert the first Vector3 to Quaternion.
+            targetQuaternion = Quaternion.Euler(targetRotations[currentIndex]);
+            StartCoroutine(UpdateCubeRotationSmoothly());
         }
-
-        // Log all target rotations to verify the conversion.
-        foreach (Vector3 rotation in targetRotations)
+        else
         {
-            Debug.Log(rotation);
+            Debug.LogError("No rotation data found. Ensure the CSV file contains valid rotation values.");
         }
-        Debug.Log("Successfully Converted to Vectors");
     }
 
-    void Update()
+    private IEnumerator UpdateCubeRotationSmoothly()
     {
-        // Ensure that the rotation data is available before proceeding.
-        if (targetRotations == null || targetRotations.Length == 0)
+        while (true)
         {
-            Console.WriteLine("No rotation selected"); // Console log if no rotations are available.
-            return; // Exit the update loop to prevent errors.
-        }
+            // Set the target quaternion for the current rotation.
+            targetQuaternion = Quaternion.Euler(targetRotations[currentIndex]);
 
-        // Log to confirm the update loop is running.
-        Debug.Log("Successfully Entered Update Loop");
+            // Interpolate to the target rotation over 1 second.
+            float elapsedTime = 0f;
+            Quaternion initialRotation = transform.rotation;
 
-        // Smoothly interpolate the cube's current rotation to the target rotation using Slerp.
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetQuaternion, rotationSpeed * Time.deltaTime);
+            while (elapsedTime < 1f) // Smoothly interpolate for 1 second.
+            {
+                elapsedTime += Time.deltaTime;
+                float t = elapsedTime / 1f; // Normalized time value (0 to 1).
+                transform.rotation = Quaternion.Slerp(initialRotation, targetQuaternion, t);
 
-        // Check if the current rotation is close enough to the target rotation.
-        if (Quaternion.Angle(transform.rotation, targetQuaternion) < 0.1f) // Threshold angle to consider "reached".
-        {
+                yield return null; // Wait for the next frame.
+            }
+
+            // Ensure the final rotation is set to the exact target.
+            transform.rotation = targetQuaternion;
+
+            // Log the current rotation index for debugging.
+            Debug.Log($"Smoothly set cube to rotation index {currentIndex}: {targetRotations[currentIndex]}");
+
             // Move to the next rotation in the array, wrapping back to the start when at the end.
             currentIndex = (currentIndex + 1) % targetRotations.Length;
-
-            // Update the target quaternion for the new rotation.
-            targetQuaternion = Quaternion.Euler(targetRotations[currentIndex]);
         }
     }
 }
